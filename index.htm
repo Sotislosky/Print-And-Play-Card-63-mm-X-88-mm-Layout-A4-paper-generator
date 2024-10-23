@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Layout for Printing</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,10 +70,12 @@
             const cardContainer = document.querySelector('.card-container');
             if (!cardContainer) return;
 
-            const canvas = await html2canvas(cardContainer);
-
+            // Use html2canvas to convert the cardContainer into an image
+            const canvas = await html2canvas(cardContainer, { scale: 2 });
             const imgData = canvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 0, 0, 210, 297); // Fit to A4
+
+            // Add the image to the PDF
+            pdf.addImage(imgData, 'PNG', 0, 0, 210, 297); // Fit to A4 size
 
             pdf.save('cards_layout.pdf');
         }
