@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Layout for Printing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(3, 63mm);
+            grid-template-rows: repeat(3, 88mm);
+            gap: 5px;
+            width: 210mm;
+            height: 297mm;
+            border: 1px solid #000;
+            margin: 0 auto;
+            page-break-after: always;
+        }
+        .card-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        input[type="file"], button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload Your Cards</h1>
+    <input type="file" id="file-input" accept="image/*" multiple>
+    <button onclick="saveAsPDF()">Download as PDF</button>
+    <div id="card-output"></div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const cardOutput = document.getElementById('card-output');
+
+        fileInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            // Clear previous cards
+            cardOutput.innerHTML = '';
+
+            // Create a container for cards
+            const cardContainer = document.createElement('div');
+            cardContainer.classList.add('card-container');
+
+            // Add images to the grid (up to 9 per page)
+            Array.from(files).slice(0, 9).forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                cardContainer.appendChild(img);
+            });
+
+            cardOutput.appendChild(cardContainer);
+        });
+
+        async function saveAsPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('portrait', 'mm', 'a4');
+
+            const cardContainer = document.querySelector('.card-container');
+            if (!cardContainer) return;
+
+            const canvas = await html2canvas(cardContainer);
+
+            const imgData = canvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 0, 0, 210, 297); // Fit to A4
+
+            pdf.save('cards_layout.pdf');
+        }
+    </script>
+</body>
+</html>
